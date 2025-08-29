@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethio Telecom Investment Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --dark-green: #006400;
+            --light-green: #4CAF50;
+            --yellow: #FFD700;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f8f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--dark-green) 0%, var(--light-green) 100%);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--yellow);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--dark-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--yellow);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--light-green);
+            outline: none;
+        }
+        
+        .investment-plans {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .investment-plans {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .plan {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .plan:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .plan.selected {
+            border-color: var(--light-green);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .plan-name {
+            font-weight: 700;
+            color: var(--dark-green);
+            margin-bottom: 5px;
+        }
+        
+        .plan-rate {
+            font-size: 1.5rem;
+            color: var(--light-green);
+            margin-bottom: 5px;
+        }
+        
+        .plan-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--dark-green), var(--light-green));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .results-card {
+            display: none;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 600px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--light-gray);
+        }
+        
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-green);
+            margin: 10px 0;
+        }
+        
+        .summary-label {
+            color: #666;
+        }
+        
+        .progress-container {
+            margin: 25px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--yellow), var(--light-green));
+            width: 0;
+            transition: width 1.5s ease-in-out;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 25px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--light-gray);
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn-pdf {
+            background: linear-gradient(to right, #d9534f, #c9302c);
+        }
+        
+        .btn-csv {
+            background: linear-gradient(to right, #5bc0de, #46b8da);
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #ccc;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tips-section {
+            margin-top: 30px;
+        }
+        
+        .tip {
+            background-color: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid var(--yellow);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .tip-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark-green);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .coin-animation {
+            text-align: center;
+            margin: 20px 0;
+            height: 60px;
+        }
+        
+        .coin {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--yellow) 0%, #daa520 100%);
+            border-radius: 50%;
+            margin: 0 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            animation: stack 2s infinite alternate;
+            animation-delay: calc(var(--i) * 0.2s);
+        }
+        
+        @keyframes stack {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-tower-cell"></i>
+                <div>
+                    <h1>Ethio Telecom</h1>
+                    <div class="subtitle">Investment Simulator</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="card">
+                    <h2 class="card-title">Investment Parameters</h2>
+                    
+                    <div class="form-group">
+                        <label for="investmentAmount">Investment Amount (ETB)</label>
+                        <input type="number" id="investmentAmount" min="100" step="100" value="10000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="investmentTerm">Investment Term (Months)</label>
+                        <input type="number" id="investmentTerm" min="1" max="60" value="12">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select Investment Plan</label>
+                        <div class="investment-plans">
+                            <div class="plan selected" data-rate="0.08">
+                                <div class="plan-name">Short-Term</div>
+                                <div class="plan-rate">8%</div>
+                                <div class="plan-desc">3-12 months</div>
+                            </div>
+                            <div class="plan" data-rate="0.12">
+                                <div class="plan-name">Medium-Term</div>
+                                <div class="plan-rate">12%</div>
+                                <div class="plan-desc">12-24 months</div>
+                            </div>
+                            <div class="plan" data-rate="0.18">
+                                <div class="plan-name">Long-Term</div>
+                                <div class="plan-rate">18%</div>
+                                <div class="plan-desc">24+ months</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="calculateBtn">Calculate Returns</button>
+                </div>
+                
+                <div class="tips-section">
+                    <div class="card">
+                        <h2 class="card-title">Financial Tips</h2>
+                        
+                        <div class="tip">
+                            <div class="tip-title">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Start Early</span>
+                            </div>
+                            <p>The earlier you start investing, the more time your money has to grow through compounding.</p>
+                        </div>
+                        
+                        <div class="tip">
+                            <div class="tip-title">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Diversify</span>
+                            </div>
+                            <p>Don't put all your eggs in one basket. Spread your investments across different assets.</p>
+                        </div>
+                        
+                        <div class="tip">
+                            <div class="tip-title">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Regular Contributions</span>
+                            </div>
+                            <p>Consistently adding to your investment can significantly increase your returns over time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-card card">
+                <h2 class="card-title">Investment Results</h2>
+                
+                <div class="coin-animation">
+                    <div class="coin" style="--i:0"></div>
+                    <div class="coin" style="--i:1"></div>
+                    <div class="coin" style="--i:2"></div>
+                    <div class="coin" style="--i:3"></div>
+                    <div class="coin" style="--i:4"></div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Invested</div>
+                        <div class="summary-value" id="totalInvested">ETB 0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Interest</div>
+                        <div class="summary-value" id="totalInterest">ETB 0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Final Balance</div>
+                        <div class="summary-value" id="finalBalance">ETB 0</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Amount Invested</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Deposit</th>
+                                <th>Interest</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="btn-pdf" id="exportPdf"><i class="fas fa-file-pdf"></i> Export as PDF</button>
+                    <button class="btn-csv" id="exportCsv"><i class="fas fa-file-csv"></i> Export as CSV</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Ethio Telecom Investment Simulator. This is for illustrative purposes only. Actual returns may vary.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const calculateBtn = document.getElementById('calculateBtn');
+            const investmentAmount = document.getElementById('investmentAmount');
+            const investmentTerm = document.getElementById('investmentTerm');
+            const plans = document.querySelectorAll('.plan');
+            const resultsCard = document.querySelector('.results-card');
+            const totalInvestedEl = document.getElementById('totalInvested');
+            const totalInterestEl = document.getElementById('totalInterest');
+            const finalBalanceEl = document.getElementById('finalBalance');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const resultsTable = document.querySelector('#resultsTable tbody');
+            const exportPdfBtn = document.getElementById('exportPdf');
+            const exportCsvBtn = document.getElementById('exportCsv');
+            
+            // Variables
+            let selectedPlan = plans[0];
+            let resultsData = [];
+            
+            // Plan selection
+            plans.forEach(plan => {
+                plan.addEventListener('click', () => {
+                    plans.forEach(p => p.classList.remove('selected'));
+                    plan.classList.add('selected');
+                    selectedPlan = plan;
+                });
+            });
+            
+            // Calculate investment
+            calculateBtn.addEventListener('click', calculateInvestment);
+            
+            // Export buttons
+            exportPdfBtn.addEventListener('click', exportToPdf);
+            exportCsvBtn.addEventListener('click', exportToCsv);
+            
+            // Tooltips
+            initializeTooltips();
+            
+            function calculateInvestment() {
+                const amount = parseFloat(investmentAmount.value);
+                const term = parseInt(investmentTerm.value);
+                const annualRate = parseFloat(selectedPlan.dataset.rate);
+                const monthlyRate = annualRate / 12;
+                
+                if (isNaN(amount) || isNaN(term) || amount <= 0 || term <= 0) {
+                    alert('Please enter valid investment values.');
+                    return;
+                }
+                
+                // Calculate investment results
+                resultsData = [];
+                let balance = amount;
+                let totalInterest = 0;
+                
+                for (let month = 1; month <= term; month++) {
+                    const interest = balance * monthlyRate;
+                    totalInterest += interest;
+                    balance += interest;
+                    
+                    resultsData.push({
+                        month,
+                        deposit: month === 1 ? amount : 0,
+                        interest,
+                        balance
+                    });
+                }
+                
+                // Update UI
+                updateResults(amount, totalInterest, balance);
+                updateTable();
+                animateProgress(amount, balance);
+                
+                // Show results card
+                resultsCard.style.display = 'block';
+            }
+            
+            function updateResults(invested, interest, balance) {
+                totalInvestedEl.textContent = `ETB ${invested.toLocaleString()}`;
+                totalInterestEl.textContent = `ETB ${interest.toLocaleString()}`;
+                finalBalanceEl.textContent = `ETB ${balance.toLocaleString()}`;
+            }
+            
+            function updateTable() {
+                // Clear table
+                resultsTable.innerHTML = '';
+                
+                // Add rows
+                resultsData.forEach(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.month}</td>
+                        <td>ETB ${data.deposit.toLocaleString()}</td>
+                        <td>ETB ${data.interest.toLocaleString()}</td>
+                        <td>ETB ${data.balance.toLocaleString()}</td>
+                    `;
+                    resultsTable.appendChild(row);
+                });
+            }
+            
+            function animateProgress(invested, balance) {
+                const percentage = Math.min(100, (invested / balance) * 100);
+                
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= percentage) {
+                        clearInterval(interval);
+                    } else {
+                        width++;
+                        progressFill.style.width = `${width}%`;
+                        progressPercentage.textContent = `${width}%`;
+                    }
+                }, 15);
+            }
+            
+            function exportToPdf() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Title
+                doc.setFontSize(20);
+                doc.setTextColor(0, 100, 0);
+                doc.text('Ethio Telecom Investment Report', 14, 15);
+                
+                // Summary
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Investment Amount: ETB ${parseFloat(investmentAmount.value).toLocaleString()}`, 14, 25);
+                doc.text(`Investment Term: ${investmentTerm.value} months`, 14, 30);
+                doc.text(`Plan: ${selectedPlan.querySelector('.plan-name').textContent} (${selectedPlan.querySelector('.plan-rate').textContent})`, 14, 35);
+                doc.text(`Total Invested: ${totalInvestedEl.textContent}`, 14, 40);
+                doc.text(`Total Interest: ${totalInterestEl.textContent}`, 14, 45);
+                doc.text(`Final Balance: ${finalBalanceEl.textContent}`, 14, 50);
+                
+                // Table
+                const tableData = resultsData.map(row => [
+                    row.month,
+                    `ETB ${row.deposit.toLocaleString()}`,
+                    `ETB ${row.interest.toLocaleString()}`,
+                    `ETB ${row.balance.toLocaleString()}`
+                ]);
+                
+                doc.autoTable({
+                    startY: 60,
+                    head: [['Month', 'Deposit', 'Interest', 'Balance']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [0, 100, 0],
+                        textColor: [255, 255, 255]
+                    }
+                });
+                
+                // Save the PDF
+                doc.save('ethio-telecom-investment-report.pdf');
+            }
+            
+            function exportToCsv() {
+                let csvContent = "Month,Deposit,Interest,Balance\n";
+                
+                resultsData.forEach(row => {
+                    csvContent += `${row.month},ETB ${row.deposit},ETB ${row.interest},ETB ${row.balance}\n`;
+                });
+                
+                const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "ethio-telecom-investment-report.csv");
+                document.body.appendChild(link);
+                
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            function initializeTooltips() {
+                // Add tooltips to important elements
+                const tooltipElements = [
+                    {selector: '#investmentAmount', text: 'Enter the amount you want to invest in Ethiopian Birr'},
+                    {selector: '#investmentTerm', text: 'Enter the number of months you want to invest for'},
+                    {selector: '.plan', text: 'Select an investment plan with different risk/return profiles'}
+                ];
+                
+                tooltipElements.forEach(item => {
+                    const element = document.querySelector(item.selector);
+                    if (element) {
+                        element.classList.add('tooltip');
+                        const tooltip = document.createElement('span');
+                        tooltip.classList.add('tooltiptext');
+                        tooltip.textContent = item.text;
+                        element.appendChild(tooltip);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
